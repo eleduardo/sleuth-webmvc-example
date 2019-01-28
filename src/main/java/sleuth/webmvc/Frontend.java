@@ -1,5 +1,7 @@
 package sleuth.webmvc;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -20,7 +22,20 @@ public class Frontend {
 
   String backendBaseUrl = System.getProperty("spring.example.backendBaseUrl", "http://localhost:9000");
 
+  static final AtomicInteger counter = new AtomicInteger();
+
   @RequestMapping("/") public String callBackend() {
+    int count = counter.incrementAndGet();
+    if (count % 5000 == 0){
+      throw new IllegalArgumentException("Failing dude");
+    }
+    if (count % 1000 == 0){
+      try {
+        Thread.sleep(500);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }
     return restTemplate.getForObject(backendBaseUrl + "/api", String.class);
   }
 
